@@ -61,23 +61,21 @@ $conn->close();
         <?php } else { ?>
             <ul class="list-disc pl-5 mb-4">
                 <?php foreach ($_SESSION['cart'] as $item) { ?>
-                    <li><?php echo htmlspecialchars($item['name']); ?> (Qty: <?php echo $item['quantity']; ?>) - $<?php echo number_format($item['subtotal'], 2); ?></li>
+                    <li><?php echo htmlspecialchars($item['name']); ?> (Qty: <?php echo $item['quantity']; ?>) - $<?php echo number_format($item['subtotal'], 2); ?><br>
+                        <span class="text-sm text-gray-600"><?php echo htmlspecialchars($item['description']); ?></span>
+                    </li>
                 <?php } ?>
             </ul>
             <p class="mb-4">Total: $<span id="total-value"><?php echo number_format(array_sum(array_column($_SESSION['cart'], 'subtotal')), 2); ?></span></p>
             <form method="POST" action="cart.php">
-                <div class="mb-4">
-                    <label for="description" class="block text-gray-700">Description</label>
-                    <textarea id="description" name="description" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" rows="3"></textarea>
-                </div>
+                
                 <div class="mb-4">
                     <label for="delivery_date" class="block text-gray-700">Delivery Date</label>
                     <input type="date" id="delivery_date" name="delivery_date" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" value="<?php echo date('Y-m-d', strtotime('+7 days')); ?>" min="<?php echo date('Y-m-d'); ?>">
                 </div>
-            <button class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 mb-2">Checkout</button>
-        <a href="products.php" class="w-full py-3 bg-red-600 text-white text-center rounded-lg hover:bg-red-700 transition duration-300 block">Cancel</a>
-    </div>
-            
+                <button class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 mb-2">Checkout</button>
+                <a href="products.php" class="w-full py-3 bg-red-600 text-white text-center rounded-lg hover:bg-red-700 transition duration-300 block">Cancel</a>
+            </form>
         <?php } ?>
     </div>
 </div>

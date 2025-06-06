@@ -418,34 +418,7 @@ $conn->close();
                 <p class="text-gray-600 text-center mb-6">
                     Connecting buyers and sellers across various municipalities.
                 </p>
-                <div class="w-full flex justify-center p-4">
-                    <svg viewBox="0 0 600 500" class="w-full h-auto max-w-2xl bg-gray-50 rounded-lg shadow-inner border border-gray-200">
-                        <!-- Simplified South Africa Map Outline -->
-                        <path fill="#e0e0e0" stroke="#a0a0a0" stroke-width="1" d="M150 50 L100 100 L80 150 L120 200 L150 250 L200 300 L250 350 L300 400 L350 450 L400 400 L450 350 L500 300 L550 250 L500 200 L450 150 L400 100 L350 50 Z"/>
-                        <!-- Major Cities -->
-                        <circle cx="300" cy="100" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Pretoria</title></circle>
-                        <circle cx="280" cy="120" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Johannesburg</title></circle>
-                        <circle cx="450" cy="250" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Durban</title></circle>
-                        <circle cx="150" cy="400" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Cape Town</title></circle>
-                        <circle cx="350" cy="420" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Port Elizabeth</title></circle>
-                        <circle cx="250" cy="300" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Bloemfontein</title></circle>
-                        <circle cx="400" cy="80" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Polokwane</title></circle>
-                        <circle cx="200" cy="250" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Kimberley</title></circle>
-                        <circle cx="480" cy="200" r="8" fill="#0152e9" stroke="#fff" stroke-width="1.5"><title>Mbombela</title></circle>
-                        <!-- Connecting Lines -->
-                        <g stroke="#0152e9" stroke-width="3" fill="none" stroke-linecap="round">
-                            <path class="route-line" style="--delay:0s;" d="M300 100 L280 120" />
-                            <path class="route-line" style="--delay:0.5s;" d="M280 120 L450 250" />
-                            <path class="route-line" style="--delay:1s;" d="M450 250 L150 400" />
-                            <path class="route-line" style="--delay:1.5s;" d="M150 400 L350 420" />
-                            <path class="route-line" style="--delay:2s;" d="M250 300 L200 250" />
-                            <path class="route-line" style="--delay:2.5s;" d="M400 80 L300 100" />
-                            <path class="route-line" style="--delay:3s;" d="M480 200 L450 250" />
-                        </g>
-                    </svg>
-                </div>
-            </div>
-
+                
             <!-- Featured Products (Moved to Bottom) -->
             <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Featured Products</h2>

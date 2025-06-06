@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_to_cart'])) {
     $quantity = max(1, intval($_POST['quantity'])); // Ensure quantity is at least 1
 
     // Fetch product details
-    $stmt = $conn->prepare("SELECT name, price, stock FROM products WHERE product_id = ?");
+    $stmt = $conn->prepare("SELECT name, price, stock, description FROM products WHERE product_id = ?");
     $stmt->bind_param("i", $product_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -46,7 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_to_cart'])) {
                     'name' => $product['name'],
                     'price' => $product['price'],
                     'quantity' => $quantity,
-                    'subtotal' => $quantity * $product['price']
+                    'subtotal' => $quantity * $product['price'],
+                    'description' => $product['description'] // Added description
                 ];
             }
         } else {
@@ -54,6 +55,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_to_cart'])) {
         }
     }
     $stmt->close();
+}
+
+// Handle Clear Cart
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['clear_cart'])) {
+    $_SESSION['cart'] = [];
 }
 
 // Fetch best sellers (top 3 by product_id as placeholder since sales_count is missing)
@@ -91,15 +97,8 @@ $conn->close();
     <div class="mb-6">
         <form method="GET" action="products.php" class="flex items-center">
             <input type="text" name="search" placeholder="Search products..." value="<?php echo htmlspecialchars($search); ?>" class="w-full max-w-md px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-            <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Search</button>
+            <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-600">Search</button>
         </form>
-    </div>
-
-    <!-- Sell Product Gradient Tab -->
-    <div class="mb-6">
-        <a href="listing.php" class="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg text-center font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
-            Want to sell a product? Create a listing!
-        </a>
     </div>
 
     <!-- Best Sellers (Horizontal Table) -->
@@ -144,7 +143,7 @@ $conn->close();
                     <div class="bg-white p-4 rounded-lg shadow flex flex-col md:flex-row items-center">
                         <!-- Image -->
                         <div class="w-full md:w-1/4">
-                            <img src="<?php echo htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="w-full h-32 object-cover rounded-lg">
+                            <img src="<?php echo htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="w-full h-32 object-contain rounded-lg">
                         </div>
                         <!-- Details -->
                         <div class="w-full md:w-3/4 md:pl-4 mt-4 md:mt-0">
@@ -166,10 +165,17 @@ $conn->close();
         </div>
     </div>
 
+    <!-- Sell Product Gradient Tab -->
+    <div class="mb-6">
+        <a href="listing.php" class="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg text-center font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
+            Want to sell a product? Create a listing!
+        </a>
+    </div>
+
     <!-- Cart Summary -->
     <div class="fixed bottom-4 right-4 z-50">
-        <a href="cart.php">
-            <div class="bg-blue-600 text-white p-4 rounded-lg shadow-lg flex items-center">
+        <div class="bg-blue-600 text-white p-4 rounded-lg shadow-lg">
+            <div class="flex items-center mb-2">
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
@@ -178,7 +184,18 @@ $conn->close();
                     <p>Total: R<?php echo number_format(array_sum(array_column($_SESSION['cart'], 'subtotal')), 2); ?></p>
                 </div>
             </div>
-        </a>
+            <?php if (!empty($_SESSION['cart'])) { ?>
+                <div class="mb-2">
+                    <?php foreach ($_SESSION['cart'] as $item) { ?>
+                        <p class="text-sm"><?php echo htmlspecialchars($item['name']); ?>: <?php echo htmlspecialchars($item['description']); ?></p>
+                    <?php } ?>
+                </div>
+                <form method="POST" action="products.php">
+                    <button type="submit" name="clear_cart" class="w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Clear Cart</button>
+                </form>
+            <?php } ?>
+            <a href="cart.php" class="block w-full mt-2 py-2 text-center bg-white text-blue-600 rounded-lg hover:bg-gray-100">View Cart</a>
+        </div>
     </div>
 </div>
 </body>

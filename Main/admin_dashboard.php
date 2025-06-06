@@ -110,12 +110,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_action'])) {
         $stmt->execute();
         $stmt->close();
     } elseif ($_POST['product_action'] == 'delete_product') {
-        $product_id = $_POST['product_id'];
-        $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $product_id = $_POST['serial_number'];
+        $stmt = $conn->prepare("DELETE FROM products WHERE serial_number = ?");
         if ($stmt === false) {
             error_log("Prepare failed (delete_product): " . $conn->error);
         } else {
-            $stmt->bind_param("i", $product_id);
+            $stmt->bind_param("i", $serial_number);
             $stmt->execute();
             $stmt->close();
         }
@@ -275,21 +275,12 @@ $performance = [
                         <label class="block text-sm font-medium text-gray-700">Product Image</label>
                         <input type="file" name="product_image" accept=".png,.jpeg,.jpg,.pdf" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Layout Option</label>
-                        <select name="layout_option" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
-                            <option value="default">Default</option>
-                            <option value="grid">Grid</option>
-                            <option value="list">List</option>
-                            <option value="carousel">Carousel</option>
-                        </select>
-                    </div>
+                    
                     <button type="submit" class="py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Add Product</button>
                 </form>
                 <table class="w-full bg-white shadow-md rounded-lg">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="p-2 text-left">ID</th>
                             <th class="p-2 text-left">Serial Number</th>
                             <th class="p-2 text-left">Name</th>
                             <th class="p-2 text-left">Description</th>
@@ -310,7 +301,6 @@ $performance = [
                                 <td class="p-2"><?php echo $product['stock']; ?></td>
                                 <td class="p-2"><?php echo htmlspecialchars($product['catalog'] ?? 'N/A'); ?></td>
                                 <td class="p-2"><?php echo $product['image_path'] ? '<a href="' . htmlspecialchars($product['image_path']) . '" target="_blank">View</a>' : 'No Image'; ?></td>
-                                <td class="p-2"><?php echo htmlspecialchars(ucfirst($product['layout_option'])); ?></td>
                                 <td class="p-2">
                                     <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
             <input type="hidden" name="product_action" value="delete_product">
