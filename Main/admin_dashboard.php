@@ -18,7 +18,7 @@ if ($conn->connect_error) {
 // Handle logout
 if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
     session_destroy();
-    header("Location: /UbuntuTech/Main/home.php");
+    header("Location:home.php");
     exit();
 }
 
@@ -37,33 +37,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
             $stmt->close();
         }
     } elseif ($_POST['action'] == 'delete_user') {
-        $user_id = $_POST['user_id'];
-        $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-        if ($stmt === false) {
-            error_log("Prepare failed (delete_user): " . $conn->error);
-        } else {
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->close();
+        $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : null;
+        if ($user_id) {
+            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+            if ($stmt === false) {
+                error_log("Prepare failed (delete_user): " . $conn->error);
+            } else {
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $stmt->close();
+            }
         }
-    }
-}
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_action']) && $_POST['product_action'] == "delete_product") {
-    $product_id = intval($_POST['product_id']);
-    $conn = new mysqli("localhost", "root", "", "ubuntu_tech");
-    if ($conn->connect_error) {
-        error_log("Connection failed: " . $conn->connect_error);
-        $error_message = "Database connection failed.";
-    } else {
-        $stmt = $conn->prepare("DELETE FROM products WHERE product_id = ?");
-        $stmt->bind_param("i", $product_id);
-        if ($stmt->execute()) {
-            $success_message = "Product deleted successfully.";
-        } else {
-            $error_message = "Failed to delete product.";
-        }
-        $stmt->close();
-        $conn->close();
     }
 }
 
@@ -74,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_action'])) {
         $description = $_POST['description'];
         $price = $_POST['price'];
         $stock = $_POST['stock'];
-        $serial_number = $_POST['serial_number'];
+        $serial_number = isset($_POST['serial_number']) ? $_POST['serial_number'] : null;
         $catalog = $_POST['catalog'] ?? null;
         $layout_option = $_POST['layout_option'] ?? 'default';
         $image_path = null;
@@ -100,7 +84,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_action'])) {
             }
         }
 
-        // Insert product, letting the database handle the id
         $stmt = $conn->prepare("INSERT INTO products (name, description, price, stock, serial_number, catalog, image_path, layout_option) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         if ($stmt === false) {
             error_log("Prepare failed (add_product): " . $conn->error);
@@ -110,14 +93,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_action'])) {
         $stmt->execute();
         $stmt->close();
     } elseif ($_POST['product_action'] == 'delete_product') {
-        $product_id = $_POST['serial_number'];
-        $stmt = $conn->prepare("DELETE FROM products WHERE serial_number = ?");
-        if ($stmt === false) {
-            error_log("Prepare failed (delete_product): " . $conn->error);
-        } else {
-            $stmt->bind_param("i", $serial_number);
-            $stmt->execute();
-            $stmt->close();
+        $product_id = isset($_POST['product_id']) ? $_POST['product_id'] : null;
+        if ($product_id) {
+            $stmt = $conn->prepare("DELETE FROM products WHERE product_id = ?");
+            if ($stmt === false) {
+                error_log("Prepare failed (delete_product): " . $conn->error);
+            } else {
+                $stmt->bind_param("i", $product_id);
+                if ($stmt->execute()) {
+                    // Optionally redirect to avoid re-submission on refresh
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
+                }
+                $stmt->close();
+            }
         }
     }
 }
@@ -128,8 +117,8 @@ $products_result = $conn->query("SELECT * FROM products");
 
 // Simple performance metrics
 $performance = [
-    'total_users' => $users_result->num_rows,
-    'total_products' => $products_result->num_rows,
+    'total_users' => $users_result ? $users_result->num_rows : 0,
+    'total_products' => $products_result ? $products_result->num_rows : 0,
     'page_views' => 1500
 ];
 ?>
@@ -159,7 +148,6 @@ $performance = [
         <!-- Sidebar -->
         <div class="fixed left-0 h-screen bg-white shadow-lg flex flex-col z-50 w-64 p-4" style="top: 24px;">
             <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
-            <!-- Display Username and Email -->
             <div class="mb-4 p-2 bg-gray-100 rounded-lg">
                 <p class="text-sm font-medium text-gray-700">Welcome, <?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?>!</p>
                 <p class="text-xs text-gray-600"><?php echo htmlspecialchars($_SESSION['user'] ?? 'No email'); ?></p>
@@ -172,11 +160,9 @@ $performance = [
             <a href="?logout=true" class="mt-8 py-2 px-4 text-white bg-red-600 hover:bg-red-700 rounded-lg text-center" style="margin-bottom: 20px;">Logout</a>
         </div>
 
-        <!-- Main Content -->
         <div class="ml-64 p-6 flex-1" style="margin-top: 24px;">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
 
-            <!-- Website Performance -->
             <section id="performance" class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">Website Performance</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -195,7 +181,6 @@ $performance = [
                 </div>
             </section>
 
-            <!-- Manage Users -->
             <section id="users" class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">Manage Users</h2>
                 <form method="POST" class="mb-4 space-y-4">
@@ -242,7 +227,6 @@ $performance = [
                 </table>
             </section>
 
-            <!-- Manage Products -->
             <section id="products" class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">Manage Products</h2>
                 <form method="POST" enctype="multipart/form-data" class="mb-4 space-y-4">
@@ -275,7 +259,6 @@ $performance = [
                         <label class="block text-sm font-medium text-gray-700">Product Image</label>
                         <input type="file" name="product_image" accept=".png,.jpeg,.jpg,.pdf" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
                     </div>
-                    
                     <button type="submit" class="py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-lg">Add Product</button>
                 </form>
                 <table class="w-full bg-white shadow-md rounded-lg">
@@ -293,7 +276,7 @@ $performance = [
                     </thead>
                     <tbody>
                         <?php $products_result->data_seek(0); while ($product = $products_result->fetch_assoc()) { ?>
-                            <tr class="border-b <?php echo 'layout-' . htmlspecialchars($product['layout_option']); ?>">                    
+                            <tr class="border-b <?php echo 'layout-' . htmlspecialchars($product['layout_option']); ?>">
                                 <td class="p-2"><?php echo htmlspecialchars($product['serial_number']); ?></td>
                                 <td class="p-2"><?php echo htmlspecialchars($product['name']); ?></td>
                                 <td class="p-2 truncate-lines"><?php echo htmlspecialchars($product['description']); ?></td>
@@ -303,11 +286,11 @@ $performance = [
                                 <td class="p-2"><?php echo $product['image_path'] ? '<a href="' . htmlspecialchars($product['image_path']) . '" target="_blank">View</a>' : 'No Image'; ?></td>
                                 <td class="p-2">
                                     <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-            <input type="hidden" name="product_action" value="delete_product">
-            <input type="hidden" name="product_id" value="<?php echo isset($product['product_id']) ? htmlspecialchars($product['product_id']) : ''; ?>">
-            <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
-        </form>
-    </td>
+                                        <input type="hidden" name="product_action" value="delete_product">
+                                        <input type="hidden" name="product_id" value="<?php echo isset($product['product_id']) ? htmlspecialchars($product['product_id']) : ''; ?>">
+                                        <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -317,7 +300,6 @@ $performance = [
     </div>
 
     <script>
-        // Basic CSS class application based on layout option (can be enhanced)
         document.querySelectorAll('tr').forEach(row => {
             const layout = row.getAttribute('class')?.split('layout-')[1];
             if (layout) {
