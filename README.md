@@ -10,5 +10,8 @@ Sincerely, apologies, and thank you once again.
 
 //Update 
 My EC2 instance on Amazon ran into an error, hence I could not host my website. 
-But I fixed now.
+But I fixed it now.
 Thank you
+
+//18/06/2025
+The Main folder showcases my original work that was initially submitted. I have then provided further updates and tweaks towards the original files.
